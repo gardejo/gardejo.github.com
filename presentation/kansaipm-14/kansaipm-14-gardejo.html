@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+
+
+<head>
+<title>Perlで汎用機と仲良くするためのクックブック (Kansai.pm #14 LT)</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.2a2" />
+<meta name="author" content="MORIYA Masaki, alias gardejo" />
+<meta name="company" content="Tokio Marine &amp; Nichido Systems Co., Ltd." />
+<!-- additional metadata -->
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<!-- embedded styles -->
+<!-- S5 JS -->
+<script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h1>Perlで汎用機と仲良くするためのクックブック</h1>
+<h2>2011-11-26 : <a href="http://kansai.pm.org">Kansai.pm</a> <a href="http://kansai.pm.org/cgi-bin/wiki.cgi?page=%A5%A4%A5%D9%A5%F3%A5%C8%2F%C2%E814%B2%F3%A5%DF%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%B9%F0%C3%CE">#14</a> Lightning Talk</h2>
+</div>
+</div>
+
+
+<div class="presentation">
+
+
+<div class="slide cover">
+<h1>Perlで汎用機と仲良くするための<br />クックブック</h1>
+<h2>2011-11-26 : <a href="http://kansai.pm.org">Kansai.pm</a> <a href="http://kansai.pm.org/cgi-bin/wiki.cgi?page=%A5%A4%A5%D9%A5%F3%A5%C8%2F%C2%E814%B2%F3%A5%DF%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%B9%F0%C3%CE">#14</a> Lightning Talk</h2>
+<h3><a href="http://gardejo.org">守屋 雅樹</a> (<a href="http://twitter.com/gardejo">@gardejo</a>)</h3>
+<h4 class="corporate-logo"><!--<img src="picture/millea-globe.gif" width="107" height="117" alt="Tokio Marine Nichidoロゴマーク (Millea Globe)" title="Tokio Marine Nichido" />--><a href="http://www.tmn-systems.co.jp/">東京海上日動システムズ株式会社</a><br />ITサービス本部 開発基盤サービス部 (オープン開発基盤)<br />プラクティショナー</h4>
+</div>
+
+
+<div class="slide">
+
+<h1>完全アウェー</h1>
+
+<ul>
+<li class="incremental">Web系の人ではありません<ul>
+    <li class="incremental">金融(保険)ユーザー系子会社勤務<ul>
+        <li>東京海上日動システムズ株式会社<ul>
+            <li>東京海上日動火災保険株式会社　全額出資</li>
+            <li>東京海上日動火災保険、東京海上日動あんしん生命保険、東京海上日動フィナンシャル生命保険等、東京海上グループの情報システムの企画・提案・設計・開発・保守・運用</li>
+        </ul></li>
+        <!--
+        <li><img src="picture/joe+seemee.gif" width="235" height="170" alt="東京海上日動のマスコットキャラクター「東京海ジョー」と「あんしんセエメエ」" title="東京海ジョーとあんしんセエメエ" /></li>
+        <li class="notes">&copy; 2011 <a href="http://www.tokiomarine-nichido.co.jp/company/cm/cmjoe/index.html">Tokio Marine &amp; Nichido Fire Insurance Co., Ltd.</a></li>
+        -->
+    </ul></li>
+</ul></li>
+<li class="incremental"><a href="http://kansai.pm.org">Kansai.pm</a>なのに関西在住でもありません<ul>
+    <li class="incremental">東京の方から来ました(大阪出張帰り)<ul>
+        <li><img src="picture/tama-to-kyoto.png" width="480" height="180" alt="東京都多摩市から京都府京都市" title="東京都多摩市から京都府京都市" /></li>
+        <li class="notes">&copy; 2011 <a href="http://maps.google.co.jp/">Google Inc.</a></li>
+        <li class="notes">&copy; 2011 ZENRIN Inc.</li>
+    </ul></li>
+</ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>Perlで<a href="http://ja.wikipedia.org/wiki/%E3%83%A1%E3%82%A4%E3%83%B3%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0">汎用機</a>と仲良くしたい</h1>
+
+<ul>
+    <li class="incremental">「汎用機上でPerlを動かす」<ul>
+        <li><a href="http://perldoc.perl.org/perlos390.html">Perl for OS/390 and z/OS</a></li>
+    </ul></li>
+    <li class="incremental">「汎用機をサーバーへダウンサイジングする」<ul>
+        <li><a href="http://yapcasia.org/2011/talk/62">PerlでJCL、基幹バッチをダウンサイジング</a><ul>
+            <li><a href="http://twitter.com/minemaz">@minemaz</a>さん (<a href="http://yapcasia.org/2011/">YAPC::Asia Tokyo 2011</a>)</li>
+        </ul></li>
+        <li><a href="http://www.ospn.jp/osc2011-kyoto/modules/eguide/event.php?eid=51">県庁で大活躍(予定)！OpenCOBOL☆Perlで汎用機ダウンサイジングに挑んだワケ</a><ul>
+            <li><a href="http://twitter.com/minemaz">@minemaz</a>さん (<a href="http://www.ospn.jp/osc2011-kyoto/">Open SourceConference 2011 Kansai/Kyoto</a>)</li>
+        </ul></li>
+    </ul></li>
+    <li class="incremental">……ではなく、<ul>
+        <li>「汎用機(メインフレーム)とWindows PCという環境を所与の条件として<em>甘んじて受け容れ</em>て、その環境でいかに楽に仕事をするか」</li>
+        <li>PerlとCPANモジュールを使った汎用機の美味しいレシピ集</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<!--
+<div class="slide">
+
+<h1>古の昔……</h1>
+
+<ul>
+    <li class="incremental"><ins>人</ins>力こそがすべてであり、</li>
+    <li class="incremental"><del>鋼</del><ins>習慣墨守</ins>の教えと闇を司る<del>魔</del><ins>PM</ins>が支配する</li>
+    <li class="incremental"><img src="picture/zeteginia.jpg" width="480" height="272" alt="PSP タクティクスオウガ オープニング画像" title="ゼテギネアと呼ばれる時代があった" /><ul>
+        <li class="notes">&copy; 1995, 2010 Square Enix Co., Ltd.</li>
+    </ul></li>
+</ul>
+
+</div>
+-->
+
+
+<div class="slide">
+
+<h1>笑顔の絶えない素敵な職場です</h1>
+
+<ul>
+    <li class="incremental">汎用機・COBOL<ul>
+        <li><a href="http://itpro.nikkeibp.co.jp/article/NEWS/20080906/314277/">「COBOLは現役バリバリ」，東京海上日動がシステム全面再構築でCOBOLを選んだワケ</a></li>
+        <li><a href="http://developers.slashdot.jp/story/08/09/09/0252214/">東京海上日動の新システムはCOBOLを採用</a></li>
+        <li><q>「COBOLを使っている人がまだいるなんて……」</q>――<cite><a href="http://japan.perlassociation.org">JPA</a>代表理事　<a href="http://twitter.com/lestrrat">@lestrrat</a>さん</cite></li>
+    </ul></li>
+    <li class="incremental">Windows</li>
+    <li class="incremental"><a href="http://ja.wikipedia.org/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E7%B3%BB#.E9.87.91.E8.9E.8D.E3.82.B0.E3.83.AB.E3.83.BC.E3.83.97.E7.B3.BB">金融ユーザー系子会社</a><ul>
+        <li>セキュリティー</li>
+        <li>コンプライアンス</li>
+        <li>コーポレートガバナンス</li>
+        <li>……</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>お約束ネタ (金融商品の<a href="http://ja.wikipedia.org/wiki/%E9%87%8D%E8%A6%81%E4%BA%8B%E9%A0%85%E8%AA%AC%E6%98%8E">重要事項説明</a>)</h1>
+
+<ul>
+    <li>発表内容は発表者の個人的な体験や思想に基づく主張であり、<em>発表者の所属組織とはいかなる関係もありません</em>。</li>
+    <li>発表内容は現状のままで提供されています。発表者およびその所属組織は、発表内容の全部または一部について、いかなる保証・約束・表明も致しません。これには、正確性・精密度・信頼性・最新性・合法性・特定目的に対する市場適合性のあらゆる暗黙的な保証が含まれますが、これらに制限されません。</li>
+    <li>発表者およびその所属組織は、聴講者が発表内容の全部または一部を実行ないし使用した結果生じた偶発的または必然的ないかなる逸失利益または特別・付随的・懲罰的・間接的もしくは派生的損害や損失について、たとえもし当該損害などの可能性について通知されていたとしても、いかなる場合においても、明示的か暗黙的かを問わず、一切の責任を負いかねます。</li>
+    <li>...</li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>上有政策、則下有対策</h1>
+
+<ul>
+    <li>環境に文句を言っても、大きすぎて変えられない<ul>
+        <li class="incremental"><del>オープン系開発部署への異動願を出す</del></li>
+    </ul></li>
+    <li class="incremental">「上に政策あれば、下に対策あり」<ul>
+        <li><img src="picture/tiananmen.jpg" width="347" height="236" alt="天安門広場" title="天安門広場" /></li>
+        <li class="notes">&copy; 2011 <a href="http://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB:20090528_Beijing_Tiananmen_7642.jpg">Wikipedia, the free encyclopedia</a></li>
+        <li>ユーザー側で好き勝手出来る範囲で料理する</li>
+    </ul></li>
+</ul>
+
+
+</div>
+
+
+<div class="slide">
+
+<h1>レシピ0: 言語処理系の導入</h1>
+
+<ul>
+    <li>何はともあれ言語処理系(言語環境)の整備</li>
+    <li><a href="http://strawberryperl.com/">Strawberry Perl for Windows</a><ul>        <li><img src="picture/strawberry-perl.png" width="500" height="290" alt="Strawberry Perlのウェブサイト" title="Strawberry Perlのウェブサイト" /><ul>
+            <li class="notes">&copy; <a href="http://strawberryperl.com/">Strawberry Perl</a> maintainers</li>
+            <li>5.14系リリース間近(<a href="http://strawberryperl.com/beta/index.html">Preview Release</a>あり)</li>
+        </ul></li>
+        <li>2008年頃までは<a href="http://www.activestate.com/activeperl">ActivePerl for Windows</a>を使用</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>インストーラーの攻略方法</h1>
+
+<ul>
+    <li class="incremental">MSIからのインストールが(ガチムチ規則やグループポリシーなどで)禁止されている？<ul>
+        <li class="incremental">王道: 業務効率化のために……などと言って申請する</li>
+        <li class="incremental">邪道: <a href="http://strawberryperl.com/releases.html">Portable Edition</a><ul>
+            <!--
+            <li><img src="picture/strawberry-perl-portable.png" width="640" height="40" alt="Strawberry PerlのPortable Edition" title="Strawberry PerlのPortable Edition" /></li>
+            -->
+            <li>ZIPファイルを展開して配置するだけ(<code>@INC</code>はいい感じになります)</li>
+            <li>UNCパスにも対応</li>
+        </ul></li>
+    </ul></li>
+    <li class="incremental">CPANモジュールのインストールは<var><a href="https://metacpan.org/module/cpanm">cpanm</a></var>で<ul>
+        <li><del>ゴニョゴニョして</del>ローカルへ持ってきた<var>*.tar.gz</var>もインストール可能</li>
+        <li>依存解決が大変なので、社外アクセス可能なサーバーでCPAN Mirrorを構築(<var><a href="https://metacpan.org/module/minicpan">minicpan</a></var>+<var><a href="http://nginx.org/">nginx</a></var>)で</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>レシピ1: JCLの自動生成</h1>
+
+<ul>
+    <li>JCL (<a href="http://ja.wikipedia.org/wiki/Job_Control_Language">Job Control Language</a>)<ul>
+        <li>ジョブ制御用のスクリプト言語</li>
+        <li>繰り返し構文が<em>ない</em></li>
+        <li>条件分岐構文が内規で使用禁止</li>
+    </ul></li>
+</ul>
+
+<p class="figure"><img src="picture/annihilation.png" width="248" height="239" alt="無理ゲー" title="無理ゲー" /></p>
+<p class="notes"><a href="http://blog.cori95.net/archives/640.htm">ドラクエ2 FC版を今更やる part.8　～ハーゴン＆シドー戦～</a> &copy; cori95.net</p>
+
+</div>
+
+
+<div class="slide">
+
+<h1>JCLをテンプレートエンジンで自動生成する</h1>
+
+<ul>
+    <li><var><a href="https://metacpan.org/module/Text::Xslate">Text::Xslate</a></var> (当初は<var><a href="https://metacpan.org/module/Template">Template-Toolkit</a></var>を使用)</li>
+</ul>
+
+<pre class="sample"><code>//P[% job_name %][% test_phase %]  JOB [% group_code %],[% tso_name %],TIME=(,10),CLASS=J,MSGCLASS=S,REGION=4096K,
+//             NOTIFY=&amp;SYSUID
+//*=====================================================================
+//* BMUD: INTEGRATION TEST (2) - IT DRIVER (BMUD PACKAGE)
+//*---------------------------------------------------------------------
+[%~ PROCESS _header.jcl -%]</code></pre>
+
+<pre class="sample"><code>[%~ FOREACH branch = branches %]
+//NEXTJ   EXEC NEXTK,LIB=&amp;THIS.,JOB=&amp;BASENAME.[% branch %]
+[%~ END -%]</code></pre>
+
+<pre class="sample"><code>[%~ SWITCH development_period -%]
+[%~ CASE '08'                 -%]
+//LINKGO  EXEC DBLGK,PSB=PVVBMUZ1,MODE=Z,
+//             KLIB1=A054, &lt;= 08 BMUD
+[%~ CASE '09'                 -%]
+//LINKGO  EXEC DBLGK,PSB=PVVBMUZ1,MODE=Z,VER=V2,
+//             KLIB1=B005, &lt;= 09 BMUD
+//             KLIB2=B008, &lt;= 09 商品管理
+//             KLIB3=B004, &lt;= 09 指定日編集
+[%~ CASE '10'                 -%]
+//LINKGO  EXEC GBLGK,PSB=PVVBMUZ1,MODE=Z,VER=V3,
+//             KLIB1=H015, &lt;= 10 BMUD
+//             KLIB2=H014, &lt;= 10 商品管理
+//             KLIB3=B004, &lt;= 09 指定日編集（10年度も09を見る）
+//             KLIB4=B005, &lt;= 09 BMUD
+[%~ END                       -%]</code></pre>
+
+</div>
+
+
+<div class="slide">
+
+<h1>レシピ2: 汎用機とのデータ送受信</h1>
+
+<ul>
+    <li>せっかく手元で自動生成しても、汎用機に持って行かなければならない</li>
+    <li class="incremental">最近の汎用機はオープン系に対してツンデレ気味<ul>
+        <li><img src="picture/tundere.jpg" width="176" height="144" alt="ツンデレ" title="ツンデレ" /><ul>
+            <li class="notes"><a href="http://tloin.blog21.fc2.com/blog-entry-116.html">言の葉インダストリイ - ツンデレ</a> &copy; SEL</li>
+        </ul></li>
+        <li>ex. FTPで会話可能</li>
+    </ul></li>
+    <li class="incremental">汎用機をBig Linux Boxとして認識する</li>
+</ul>
+
+
+</div>
+
+
+<div class="slide">
+
+<h1>素直にFTPで送受信する</h1>
+
+<ul>
+    <li><var><a href="https://metacpan.org/module/Net::FTP">Net::FTP</a></var><ul>
+        <li>……を継承した<var>Net::FTP::MVS</var>(未公開)<ul>
+            <li>SEQ (Sequential File)ではないPDS (Partitioned Datasets)の場合、<code>get</code>前に<code>cwd    </code>が必要</li>
+            <li>文字エンコーディング (EBCDIC+IBM漢字, CP932, ...)</li>
+        </ul></li>
+        <li>ログインはTSOアカウントを使う<ul>
+            <li>対話的ログインではないので、パスワード誤りやパスワード自動変更に注意</li>
+            <li class="handout">TSO端末エミュレータで対話的ログインをするのであれば、パスワード誤りやパスワード切り替えが例示されるが、これは違う</li>
+            <li class="handout">失効して管理者に怒られないように注意する</li>
+        </ul></li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>レシピ3: 各種データの変換</h1>
+
+<ul>
+    <li>SIerとユー子 = Excel至上主義<ul>
+        <li><a href="http://www.amazon.co.jp/dp/4798117137">Excel方眼ドキュメント脳の恐怖</a></li>
+        <li>要件定義書</li>
+        <li>詳細設計書</li>
+        <li>テストケース表</li>
+        <li>テストデータ (入力, 出力)<ul>
+            <li>目<kbd>grep</kbd></li>
+            <li>目<kbd>diff</kbd></li>
+            <li>手<kbd>patch</kbd></li>
+            <li>...</li>
+        </ul></li>
+        <li>テスト実行結果</li>
+        <li>...</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>データ変換はPerlの十八番</h1>
+
+<ul>
+    <li><var><a href="https://metacpan.org/module/Spreadsheet::Read">Spreadsheet::Read</a></var>, <var><a href="https://metacpan.org/module/Spreadsheet::Write">Spreadsheet::Write</a></var><ul>
+        <li><var><a href="https://metacpan.org/module/Spreadsheet::ReadExcel">Spreadsheet::ReadExcel</a></var>, <var><a href="https://metacpan.org/module/Spreadsheet::WriteExcel">Spreadsheet::WriteExcel</a></var>, <var><a href="https://metacpan.org/module/Text::CSV">Text::CSV</a></var>などのフロントエンド(ラッパー)</li>
+        <li>テストデータ(入出力)のExcelと可変長CSV・固定長テキストとの相互変換</li>
+    </ul></li>
+    <li>バイナリー形式とテキスト形式との相互変換は、汎用機側で行った方が楽<ul>
+        <li>既存の変換<a href="http://ja.wikipedia.org/wiki/Job_Control_Language#.E3.83.97.E3.83.AD.E3.82.B7.E3.83.BC.E3.82.B8.E3.83.A3">カタプロ</a>がある前提</li>
+        <li>JCLに仕込む</li>
+    </ul></li>
+</ul>
+
+
+</div>
+
+
+<div class="slide">
+
+<h1>レシピ4: ジョブの遠隔実行</h1>
+
+<ul>
+    <li>ジョブを実行するのにも……<ul>
+        <li>TSOメニュー (ISPF: <a href="http://www.ibm.com/software/awdtools/ispf/">Interactive System Productivity Facility</a>)を辿って</li>
+        <li>作ったJCLを実行 (<kbd>SUB</kbd>)し</li>
+        <li>実行結果を確認する</li>
+        <li>面倒くさい</li>
+    </ul></li>
+    <li class="incremental">夢の自動実行へ<ul>
+        <li><var>INTRDR</var> (Internal Reader)</li>
+        <li>MFC (IBM CrossWorlds Mainframe Connector)</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>Internal ReaderとMainframe Connector</h1>
+
+<table summary="Internal ReaderとMainframe Connectorの比較">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Internal Reader</th>
+            <th>Mainframe Connector</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>概要</th>
+            <td><var>INTRDR</var>という擬似的なファイルへ、JCLをFTPで<var>put</var>する<br /><pre><code>...
+QUOTE FileType=JES
+PUT FOOBAR.JCL
+...</code></pre></td>
+            <td>MFCに特定のプロトコルで会話する (JCLの送付など)</td>
+        </tr>
+        <tr>
+            <th>認証 (authentication)</th>
+            <td>○ (FTPアカウント = TSOアカウント)</td>
+            <td>○</td>
+        </tr>
+        <tr>
+            <th>認可 (authorization)</th>
+            <td>？</td>
+            <td>RACF (<a href="http://www.ibm.com/systems/z/os/features/racf/">IBM Resource Access Control Facility</a>)により可能</td>
+        </tr>
+        <tr>
+            <th>同期処理</th>
+            <td>×？</td>
+            <td>○</td>
+        </tr>
+        <tr>
+            <th>戻り値</th>
+            <td>ジョブIDのみ</td>
+            <td>ジョブログ</td>
+        </tr>
+        <tr>
+            <th>由来</th>
+            <td>MVS標準</td>
+            <td>IBM CrossWorlds (ビジネスプロセス統合ミドルウェア製品群)</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>この辺り、深くは分かりかねます(ごめんなさい)</p>
+
+</div>
+
+
+<div class="slide">
+
+<h1>レシピ5: GUI操作の自動化</h1>
+
+<ul>
+    <li>最果ての地<ul>
+        <li><var>INTRDR</var>やMFCが使えない</li>
+        <li>TSOメニューの操作も自動化したい</li>
+    </ul></li>
+    <li class="incremental">最終兵器 <var><a href="https://metacpan.org/module/Win32::GuiTest">Win32::GUITest</a></var><ul>
+        <li>GUIコントロールを特定した処理や、マウス操作・キーボード打鍵など</li>
+        <li>詳細は<a href="http://twitter.com/xaicron">@xaicron</a>さんの<a href="http://perl-users.jp/articles/advent-calendar/2010/win32/8">紹介記事</a>など</li>
+        <li>しょうもないサンプル: <a href="https://gist.github.com/392076">Excelを開いたり閉じたり</a>……</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>まとめ</h1>
+
+<p class="figure"><img src="picture/conclusion.jpg" width="300" height="267" alt="結論" title="結論" /></p>
+
+<p class="notes"><a href="http://oda999.tea-nifty.com/blog/2008/12/post-e2e1.html">男心と女心: とにかく結論を</a> &copy; 織田隼人</p>
+</div>
+
+
+<div class="slide">
+
+<h1>自動化の光と闇</h1>
+
+<ul>
+    <li>自動化の果実<ul>
+        <li>効率性: 何度も実行する処理は手作業で行わない</li>
+        <li>堅牢性: データセット名やジョブ名の書き間違い撲滅</li>
+        <li>完全性: 監査証跡の保全を自然体で行える</li>
+        <li>運用性: 属人化を廃する、<a href="http://blog.nomadscafe.jp/2011/06/web-1.html">実行可能な手順書</a></li>
+        <li>...</li>
+    </ul></li>
+    <li>理想と現実のすりあわせ<ul>
+        <li>パレートの法則(80:20の法則など)</li>
+    </ul></li>
+    <li>保守性の考慮<ul>
+        <li>人力処理の代替なので、中断再開などは可能</li>
+        <li>テンプレートや設定ファイルの更新は比較的容易<ul>
+            <li>心配り・おもてなしの心が必要(CP932, CR+LF, ...)</li>
+        </ul></li>
+    </ul></li>
+
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>金融ユー子での振る舞い方</h1>
+
+<ul>
+    <li>管理者と仲良くなること<ul>
+        <li>管理者も知らないような機能がある</li>
+    </ul></li>
+    <li>穴を塞いでないだけ？<ul>
+        <li>是非活用してください</li>
+        <li>宝の持ち腐れはもったいない！</li>
+        <li>提案すれば通るかも</li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>Perl = Swiss-Army chainsaw</h1>
+
+<ul>
+    <li><a href="http://ja.wikipedia.org/wiki/%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2#.E6.97.A5.E6.9C.AC.E3.81.A8.E4.B8.96.E7.95.8C.E3.81.A8.E3.81.AE.E8.AA.8D.E8.AD.98.E3.81.AE.E5.B7.AE.E7.95.B0">日本的SE</a>でも、日々の仕事を片付けるための得意言語があると便利</li>
+    <li class="incremental">Perlである必要はない、が<ul>
+        <li>幅広いプラットフォーム (UNIX, Windows, ...)</li>
+        <li>豊富なCPANモジュール (各種用途に対応)<ul class="enumeration">
+            <li><var><a href="https://metacpan.org/module/Getopt::Long">Getopt::Long</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Encode">Encode</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Text::Xslate">Text::Xslate</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Path::Class">Path::Class</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Net::FTP">Net::FTP</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Spreadsheet::Read">Spreadsheet::Read</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Spreadsheet::Write">Spreadsheet::Write</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Win32::GuiTest">Win32::GuiTest</a></var></li>
+            <li><var><a href="https://metacpan.org/module/Moose">Moose</a></var> (すみませんMoose厨なんです)</li>
+            <li>...</li>
+        </ul></li>
+    </ul></li>
+    <li class="incremental">Perl mongerならずとも、広くお勧め出来る<ul>
+        <li>Perlファンを増やす</li>
+        <li><a href="http://www.songmu.jp/riji/etc/kamakurapm1/slide.html">社内でPerlの地位を向上させる方法</a><ul>
+            <li><a href="http://twitter.com/songmu">@songmu</a>さん (<a href="http://kamakura.pm.org">Kamakura Perl Mongers</a>: <a href="http://kamakura.pm.org/2011/01/18/techtalk1.html">Technical Talk #1</a>)</li>
+        </ul></li>
+    </ul></li>
+</ul>
+
+</div>
+
+
+<div class="slide">
+
+<h1>We &hearts; Perl!</h1>
+
+<p>ご静聴ありがとうございました</p>
+
+<dl>
+    <dt>スライド</dt><dd><a href="http://gardejo.github.com/presentation/kansaipm-14/">http://gardejo.github.com/presentation/kansaipm-14/</a></dd>
+</dl>
+
+</div>
+
+
+</div>
+
+
+</body>
+
+
+</html>
